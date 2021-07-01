@@ -127,6 +127,7 @@ export default function UserGallery() {
                   <RecipeReviewCard
                     id={val.id}
                     author={fullname}
+                    userId={val.userId}
                     postdate={val.updateTime} // change it to real value, depends on the structure of myrecipe
                     thumbnail={val.thumbnail} // change it to real value, depends on the structure of myrecipe
                     title={val.name} //replace this with value read from database

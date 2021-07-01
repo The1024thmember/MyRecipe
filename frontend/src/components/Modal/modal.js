@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button';
 import { useCookies } from 'react-cookie';
 import HostUrl from 'config';
 import { useHistory } from 'react-router-dom';
+import 'styles/components/modalStyle.css';
 //modal
 const useStyles = makeStyles((theme) => ({
   modal: { 
@@ -279,11 +280,13 @@ function Unfollowcomponent({buttonmessage,handleclick,userId}){
   return <>
     <div className={classes.profile}>
       <Avatar className={classesavatar.large}
+        id="avatarHover"
         onClick={()=>{
           history.push('/user/'+userId); 
         }}
       >{userinfo.charAt(0)}</Avatar>
       <div  className={classes.namebox}
+        id="usernameHover"
         onClick={()=>{
           history.push('/user/'+userId); 
         }}

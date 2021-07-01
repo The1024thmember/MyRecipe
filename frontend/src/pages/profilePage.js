@@ -380,6 +380,7 @@ export default function ProfilePage () {
               <RecipeReviewCard
                 id={myreceipes[key]['id']}
                 author={username}
+                userId={myreceipes[key]['userId']}
                 postdate={myreceipes[key]['updateTime']} // change it to real value, depends on the structure of myrecipe
                 thumbnail={myreceipes[key]['thumbnail']} // change it to real value, depends on the structure of myrecipe
                 title={myreceipes[key]['name']} //replace this with value read from database

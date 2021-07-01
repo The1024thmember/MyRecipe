@@ -1,3 +1,11 @@
 #imageToHover:hover {
   cursor:pointer;
 }
+
+#avatarHover:hover {
+  cursor:pointer;
+}
+
+#recipeTitleHover:hover {
+  cursor:pointer;  
+}

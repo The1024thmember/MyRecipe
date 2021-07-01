@@ -24,17 +24,30 @@ const useStyles = makeStyles((theme) => ({
     Width: '345px',
     // display:'inline-block',
   },
+  author: {
+    paddingLeft:"90px",
+    position:'relative',
+    top:"40px",
+    fontWeight:'bold',
+    color:"rgb(88,88,88)",
+  },
   header: {
     height:'100px',
     Width: '345px',
     overflowY:'hidden',
   },
   media: {
+    position:'relative',
+    bottom:'15px',
     height: 0,
     paddingTop: '56.25%', // 16:9
   },
   avatar: {
     backgroundColor: red[500],
+    height:'60px',
+    width:'60px',
+    position:'relative',
+    bottom:'13px',
   },
   content:{
     overflowY:'auto',
@@ -64,14 +77,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function RecipeReviewCard({id,author,thumbnail,title, postdate, description, numberoflikes, numberofcomments, isprivate, setShowWarning,warningFeedback,setWarningFeedback,setfocusrecipeid,style={}}) { //if isprivate is true means the user can delete or edit the recipe
+export function RecipeReviewCard({id,userId,author,thumbnail,title, postdate, description, numberoflikes, numberofcomments, isprivate, setShowWarning,warningFeedback,setWarningFeedback,setfocusrecipeid,style={}}) { //if isprivate is true means the user can delete or edit the recipe
   const classes = useStyles();
   const history = useHistory();
   const [cookies] = useCookies(['token']);
   const [errorMessage, setErrorMessage] = React.useState('');
   const [error, setError] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-
   //delete a recipe
   const deleterecipe = async (id) => { //get user data include recipes, email, username, fullname  
     var url=new URL(HostUrl('/user/recipe/'+id));
@@ -157,31 +169,50 @@ export function RecipeReviewCard({id,author,thumbnail,title, postdate, descripti
     console.log(id); 
     history.push('/recipe/'+id);  
   }
+  
+  const jumpToUsergallery=()=>{
+    if (isprivate)
+    {console.log('This is my profile page'); }
+    else
+    {
+      console.log('Going to author userGallery page:'+userId); 
+      history.push('/user/'+userId);
+    }
+  }
 
   return (
     <Card className={classes.root} style={style}>
+      <span className={classes.author}
+        id="recipeTitleHover"
+        onClick={handlefulldetialview}>
+        {title}
+      </span>
       <CardHeader className={classes.header}
-	    avatar={
-        <Avatar aria-label="recipe" className={classes.avatar}>
-          {author.charAt(0).toUpperCase()}
-        </Avatar>
-      }
-      action={isprivate&&
-        <div>
-          <div className={classes.controls}>
-          <IconButton aria-label="edit"
-          onClick={handleedit}>
-            <EditIcon />
-          </IconButton>
-          <IconButton aria-label="delete"
-          onClick={handledelete}>
-            <DeleteIcon />
-          </IconButton>
+        avatar={
+          <Avatar aria-label="recipe"
+          id="avatarHover"
+          onClick={jumpToUsergallery}
+          className={classes.avatar}>
+            {author.charAt(0).toUpperCase()}
+          </Avatar>
+        }
+        action={isprivate&&
+          <div>
+            <div className={classes.controls}>
+              <IconButton aria-label="edit"
+              onClick={handleedit}>
+                <EditIcon />
+              </IconButton>
+              <IconButton aria-label="delete"
+              onClick={handledelete}>
+                <DeleteIcon />
+              </IconButton>
+            </div>	
           </div>	
-        </div>	
-      }
-        title={title}
+        }
+        title={author}
         subheader={postdate.split(" ")[0]}
+        
       />
 
       <CardMedia 
