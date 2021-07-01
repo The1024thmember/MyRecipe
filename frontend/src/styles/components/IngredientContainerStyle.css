@@ -1,0 +1,89 @@
+.mycontainer {
+	padding-top:20px;
+}
+
+.ingredient_container_total {
+	border: 1px solid rgb(196, 196, 196);	
+	border-radius: 5px;
+    /* width:100%; */
+}
+
+.indgredient_title {
+	color:rgb(131,132,133);
+	font-weight:bold;
+}
+
+.ingredient_container_single {
+	position:relative;
+	border-radius:2%;
+	height: 100%;
+	width:100%;
+	margin-bottom:3%;
+	padding-bottom:3%;
+}
+
+.ingredient_grid {
+	position:relative;
+}
+
+.ingredient_name_font {
+	position:relative;
+	width:100%;
+	height:50%;
+	left:0%;
+	color:white;
+	background-color:rgb(56,70,142);
+	display:inline-block;
+	text-align:center;
+	font-weight:bold;
+}
+    
+.arrow-right {
+  width: 0%; 
+  height:0%; 
+  border-style: solid;
+  border-width: 20px 45px 0 0;
+  border-color: rgb(56,70,142) transparent transparent transparent;
+  position:relative;
+  top:0%;
+  display:inline-block;
+}
+
+.ingredient_name_box {
+	position:relative;
+	top:20%;
+	left:15%;
+	border-radius: 10%;	
+	height: 80%;
+	width: 80%;
+}
+
+.ingredient_qty {
+	position:relative;
+	top:20%;
+	left:13%;
+	height: 80%;
+	width: 70%;
+}
+
+.ingredient_measure{
+	position:relative;
+	top:20%;	
+	height: 80%;
+	width: 100%
+}
+
+.ingredient_buttons{
+	position:relative;
+	top:20%;	
+	display:flex;
+	justify-content: center;
+}
+
+.deletebutton {
+	flex:1;
+}
+
+.addbutton {
+	flex:1;
+}

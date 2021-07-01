@@ -1,0 +1,171 @@
+
+
+#main-container {
+  width: 85%;
+  border-radius: 7px;
+  margin: auto;
+  position: relative;
+  top: -80px;
+  background-color: #fff !important;
+  box-shadow: 0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15);
+}
+
+#content-container {
+  width: 80%;
+  margin: auto;
+  padding: 40px 0;
+}
+
+#content-container h1 {
+  font-size: 32pt;
+  color: #38468E;
+}
+
+#content-container h2 {
+  font-size: 24pt;
+  color: #E28D76;
+}
+
+#content-container h3 {
+  margin: auto 5px;
+  font-size: 18pt;
+}
+
+#content-container h4 {
+  margin: auto 5px;
+}
+
+#description-container h4 {
+  font-size: 16pt;
+  color:rgba(0, 0, 0, 0.61)
+}
+
+#author-container {
+  display: flex;
+  padding: 20px 0;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 30px;
+  border-bottom: 1px solid lightgray;
+  transition: ease-in-out 0.25s;
+}
+
+#author-container:hover {
+  cursor: pointer;
+}
+
+#avatar-icon {
+  background-color: rgb(255, 88, 46);
+}
+
+#author-content {
+  margin-left: 20px;
+  transition: ease-in-out 0.25s;
+}
+
+#author-content h4 {
+  font-size: 14pt;
+}
+
+#author-content:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+#author-content p {
+  font-size: 11pt;
+  margin: auto 5px;
+  color: rgb(102, 102, 102);
+}
+
+#meal-type-container {
+  display: block;
+  flex-direction: column;
+  /* justify-content: left; */
+  /* align-items: center; */
+  margin: 25px 0;
+}
+
+#meal-type-container .meal-type {
+  margin-top: 20px;
+}
+
+#meal-type-container h3 {
+  margin: 0;
+  font-size: 24pt;
+  color: #E28D76;
+}
+
+#ingredient-content {
+  margin-top: 50px;
+}
+
+#ingredient-material {
+  display: flex;
+  flex-direction: column;
+}
+
+#method-content {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+#method-content p {
+  margin: 20px 5px;
+}
+
+.method-step {
+  margin-top: 30px;
+}
+
+.method-step p {
+  margin: 20px 0;
+  line-height: 2;
+  font-size: 12pt;
+}
+
+.step-title-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.step-checkbox {
+  left: -10px;
+}
+
+.step-decription {
+  border-bottom: 1px solid lightgray;
+}
+
+#notes-content h2 {
+  font-size: 18pt;
+  color: black;
+}
+
+#notes-description p {
+  margin: 20px 0;
+  line-height: 2;
+  font-size: 12pt;
+}
+
+#comment-container {
+  margin-top: 40px;
+}
+
+#comment-container h4 {
+  margin: 0px;
+}
+
+#post-comment-container {
+  display: flex;
+  margin-top: 70px;
+  align-items: center;
+}
+
+.comment-input {
+  width: calc(100% - 20px);
+}
+
+.post-button {
+  margin-left: 30px;
+}
+

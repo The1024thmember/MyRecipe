@@ -1,0 +1,109 @@
+#profile-parallax {
+	width: 100%;
+	min-height: 300px;
+	background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+	background-color: #38468E;
+}
+
+#user-main-container {
+	width: 85%;
+  border-radius: 7px;
+  margin: auto;
+  position: relative;
+	padding: 0px 5%;
+	padding-bottom: 50px;
+  top: -80px;
+  background-color: #fff !important;
+  box-shadow: 0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15);
+}
+
+#user-main-container h1, h2, h3 {
+	font-family: "Roboto Slab", serif;
+	color: rgb(61, 61, 61);
+}
+
+#profile-container {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	border-bottom: 1px solid lightgray;
+}
+
+#avatar-container {
+	display: flex;
+	position: absolute;
+	top: -80px;
+}
+
+#avatar-container .avatar-icon {
+	width: 160px;
+	height: 160px;
+	font-size: 4.5em;
+	background-color: rgb(255, 88, 46);
+}
+
+#user-content-container {
+	margin-top: 80px;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+#user-content-container h1 {
+	color: #000;
+	margin-bottom: 0px;
+}
+#user-content-container h3 {
+	color: rgb(70, 70, 70);
+	font-size: 14pt;
+	margin-top: 2.5px;
+}
+
+#ff-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	border-radius: 10px;
+	margin-top: 30px;
+	margin-bottom: 50px;
+	background-color: #fff !important;
+  box-shadow: 0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15);
+}
+
+#ff-container .following, .followers, .posts {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 115px;
+	margin: 0px 20px;
+}
+
+#ff-container h2, h3 {
+	color: gray;
+	margin: 10px 0px;
+}
+
+#ff-container h3 {
+	margin-top: -5px;
+}
+
+#recipe-container {
+	border: 1px solid rgb(220,220,220);
+	border-radius: 5px;
+}
+
+.title-container {
+	margin-top: 50px;
+}
+
+.singlerecipe {
+	display:inline-block;
+	padding:3%;
+	width:27.3%;
+}
