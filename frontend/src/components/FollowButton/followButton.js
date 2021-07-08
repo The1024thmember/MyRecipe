@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import HostUrl from 'config';
@@ -104,7 +104,7 @@ export default function FollowButton ({ curUserId, followers, setFollowers }) {
     return function cleanup() {
       abortController.abort();
     }
-  }, []);
+  }, [getData]);
 
   return (
     <div style={{

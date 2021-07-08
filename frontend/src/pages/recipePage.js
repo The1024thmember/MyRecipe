@@ -54,7 +54,6 @@ export default function RecipePage () {
   const [image, setImage] = useState('');
   const [authorId, setAuthorId] = useState();
   const [notes, setNotes] = useState('');
-
   useEffect(() => {
     // fetch recipe data
     getRecipe();
@@ -80,7 +79,11 @@ export default function RecipePage () {
       setMealType(data.mealType);
       setIngredients(data.ingredients);
       setMethods(data.methods);
-      setImage(data.image);
+      if (data.image === null) {
+        setImage('default_picture.png');
+      } else {
+        setImage(data.image);
+      }
       setAuthorId(data.authorId);
       setNotes(data.notes);
       setLoading(false);
@@ -94,6 +97,8 @@ export default function RecipePage () {
     history.push('/user/' + authorId);
   }
 
+  console.log("url(" + HostUrl('/'+ image) +"\")");
+
   return (
     <>
       {loading
@@ -104,12 +109,11 @@ export default function RecipePage () {
         style={{
           width: "100%",
           minHeight: "calc(100vh - 200px)",
-          backgroundImage: "url(\""+ image +"\")",
+          backgroundImage: "url(\"" + HostUrl('/'+ image) +"\")",
           backgroundAttachment: "fixed",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
-          backgroundColor: "lightgray"
         }}
       />
       <div id="main-container">
@@ -212,7 +216,6 @@ export default function RecipePage () {
                 </Grid>
               </Grid>
             </div>
-          
           </div>
         </div>
       </div>

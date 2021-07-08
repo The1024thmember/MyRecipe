@@ -4,7 +4,7 @@ const DashboardPageStyles = {
     marginRight: 'auto',
     paddingRight: '15px',
     paddingLeft: '15px',
-    width: '970px'
+    width: '85%'
   },
   tab: {
     marginTop: '30px',
@@ -15,7 +15,7 @@ const DashboardPageStyles = {
     display: 'flex',
     alignItems: 'center',
     marginLeft: '40px',
-  }
+  },
 };
 
 export default DashboardPageStyles;

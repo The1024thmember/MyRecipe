@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
@@ -8,9 +8,8 @@ import styles from 'styles/pages/dashboardPageStyles'
 import Header from 'components/Header/header';
 import CustomSearchBar from 'components/SearchBar/searchBar';
 import AvatarProfile from 'components/AvatarProfile/avatarProfile';
-import Tabs from 'components/Tabs/customTabs';
+import CustomTabs from 'components/Tabs/customTabs';
 import Button from '@material-ui/core/Button';
-
 
 const useStyles = makeStyles(styles);
 
@@ -31,19 +30,20 @@ function LeftLink () {
         Post Recipe
       </Button>
     </div>
-  )
+  );
 }
 
 export default function DashboardPage () {
   const classes = useStyles();
-  const [cookies, setCookie, removeCookie] = useCookies(["username"]);
+  const [cookies] = useCookies(['token']);
+
   return (
-    <div>
+    <>
       <Header leftLink={<LeftLink />} rightLink={<AvatarProfile username={cookies.username}/>}/>
       <div className={classes.container}>
         <CustomSearchBar />
-        <Tabs />
+        <CustomTabs/>
       </div>
-    </div>
+    </>
   );
 }

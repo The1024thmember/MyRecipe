@@ -17,7 +17,7 @@ import { MethodcontainerTotal } from 'components/Method/UpdateMethodcontainer';
 import { IngredientcontainerTotal } from 'components/Ingredient/UpdateIngredientContainer';
 import WarningDialog from 'components/Dialog/warningDialog';
 import BackButton from 'components/BackButton/backButton';
-import UplaodImage from 'components/UploadImage/uploadImage';
+import UplaodImageFile from 'components/UploadImage/uploadImageFile';
 import LoadingScreen from 'components/Loader/loadingScreen';
 import { useParams } from 'react-router-dom';
 
@@ -51,13 +51,10 @@ export default function UpdateRecipePage () {
   const [description, setDescription] = useState('');
   const [notes, setNotes] = useState('');
   const [mealType, setMealType] = useState('');
-  const [picture, setPicture]= useState();
-  const [thumbnail, setThumbnail] = useState();
   const [methods, setMethods] = useState({});
-  const [mymethods, setmymethods] = useState({});
-  const [myingredients, setmyingredients] = React.useState({1:{'name':'','qty':'','measure':''}}); //stores ingredient data, ready for backend
   const [ingredients, setIngredients] = useState([]);
-  const [image, setImage] = useState('');
+  const [image, setImage] = useState(undefined);
+  const [existingImage, setExistingImage] = useState('');
   // Error handler variables
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -79,20 +76,14 @@ export default function UpdateRecipePage () {
       setLoading(true);
       const response = await fetch(HostUrl('/recipe/'+ recipeId), settings);
       const data = await response.json();
-      const parallax = document.getElementById('recipe-parallax');
 
       setRecipeName(data.name);
       setDescription(data.description);
       setMealType(data.mealType);
       setIngredients(data.ingredients);
       setMethods(data.methods);
-      setMethods(data.methods);
-      //console.log("ingredients");
-      //console.log(data.ingredients);
-      setImage(data.image);
-      setThumbnail(data.thumbnail);
-      // update the background image
-      // parallax.style.backgroundImage = `url(${data.image})`;
+      setNotes(data.notes);
+      setExistingImage(data.image);
       setLoading(false);
     } catch (err) {
       setLoading(false);
@@ -117,31 +108,103 @@ export default function UpdateRecipePage () {
         methods_temp[key] = methods[key];
       });
       setLoading(true);
+
+      console.log(existingImage)
+      console.log(image);
+
       try {
-        const settings = {
-          method: 'PUT',
-          body: JSON.stringify({
-            "image": image,
-            "id": recipeId,
-            "thumbnail": thumbnail,
-            "description": description,
-            "ingredients": ingredients_temp,
-            "methods": methods_temp,
-            "name": recipeName,
-            "mealType": mealType,
-            "notes": notes
-          }),
-          headers: {
-            'Authorization': cookies.token,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
+        if (existingImage !== null && image === undefined) {
+          const settings = {
+            method: 'PUT',
+            body: JSON.stringify({
+              "id": recipeId,
+              "image": existingImage,
+              "description": description,
+              "ingredients": ingredients_temp,
+              "methods": methods_temp,
+              "name": recipeName,
+              "mealType": mealType,
+              "notes": notes
+            }),
+            headers: {
+              'Authorization': cookies.token,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            }
           }
-        }
-        const response = await fetch(HostUrl('/user/recipe'), settings);
-        console.log(response);
-        setLoading(false);
-        if (response.status === 200) {
-          history.push('/dashboard');
+          const response = await fetch(HostUrl('/user/recipe'), settings);
+          setLoading(false);
+          if (response.status === 200) {
+            history.goBack();
+          }
+        } else if (existingImage === null && image === undefined) {
+          const settings = {
+            method: 'PUT',
+            body: JSON.stringify({
+              "id": recipeId,
+              "image": null,
+              "description": description,
+              "ingredients": ingredients_temp,
+              "methods": methods_temp,
+              "name": recipeName,
+              "mealType": mealType,
+              "notes": notes
+            }),
+            headers: {
+              'Authorization': cookies.token,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            }
+          }
+          const response = await fetch(HostUrl('/user/recipe'), settings);
+          setLoading(false);
+          if (response.status === 200) {
+            history.goBack();
+          }
+        } else {
+          const formData = new FormData();
+          formData.append('image', image);
+          const imgConfig = {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'Authorization': cookies.token,
+            }
+          }
+          
+          const imgResponse = await fetch(HostUrl('/user/recipe/image'), imgConfig);
+          if (imgResponse.status === 200) {
+            const hashImg = await imgResponse.json();
+            const settings = {
+              method: 'PUT',
+              body: JSON.stringify({
+                "id": recipeId,
+                "image": hashImg.image,
+                "description": description,
+                "ingredients": ingredients_temp,
+                "methods": methods_temp,
+                "name": recipeName,
+                "mealType": mealType,
+                "notes": notes
+              }),
+              headers: {
+                'Authorization': cookies.token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+              }
+            }
+            const response = await fetch(HostUrl('/user/recipe'), settings);
+            setLoading(false);
+            if (response.status === 200) {
+              history.goBack();
+            }
+          } else if (imgResponse.status === 500) {
+            setError(true);
+            setErrorMessage('Image file too large!');
+            setLoading(false);
+          } else {
+            throw 'Error: Image upload failed';
+          }
         }
       } catch (err) {
         setLoading(false);
@@ -190,6 +253,7 @@ export default function UpdateRecipePage () {
       }
       return retVal;
     };
+
     if (warningFeedback === 'no') {
       setWarningFeedback('');   // reset warning feedback
     } else if (warningFeedback === 'yes') {
@@ -232,10 +296,11 @@ export default function UpdateRecipePage () {
         </div>
         <div className={classes.parentContainer}>
           <div className={classes.leftContainer}>
-            <UplaodImage
+            <UplaodImageFile
               picture={image}
               setPicture={setImage}
-              setThumbnail={setThumbnail}
+              existingImage={existingImage}
+              setExistingImage={setExistingImage}
             />
             <TextField
               variant="outlined"

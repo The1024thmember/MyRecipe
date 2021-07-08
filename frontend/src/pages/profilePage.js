@@ -18,6 +18,7 @@ import { useCookies } from 'react-cookie';
 import HostUrl from 'config';
 import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
 import DeleteWarningDialog from 'components/Dialog/deleteWarningDialog';
+import LoadingScreen from 'components/Loader/loadingScreen';
 
 function RightLink () {
   const history = useHistory();
@@ -116,9 +117,10 @@ export default function ProfilePage () {
   
   const [cookies] = useCookies(['token']);
   const [username,setusername]= React.useState('');
+  const [userId, setuserId] = React.useState(false);
   const [fullname,setfullname]=React.useState('');
   const [email,setemail]=React.useState('');
-  const [myreceipes,setmyreceipes]=React.useState([]);
+  const [myreceipes,setmyreceipes]=React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('');
   const [error, setError] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -169,18 +171,18 @@ export default function ProfilePage () {
   
   const showfollowing = () => {
     setOpen(true);
-    setmodaltitle('LIST oF FOLLOWING');
+    setmodaltitle('List of Following');
     setmodalcontent(followinglist);
     setbuttonmessage("unfollow");
   }
   const showfollower = () => {
     setOpen(true);
-    setmodaltitle('LIST oF FOLLOWER');
+    setmodaltitle('List of Followers');
     setmodalcontent(followerlist);
     setbuttonmessage("");//since we don't know if the user is following his/her follower, so need to compare each of his follower with following list to determine what should be on the button
   }
 
-  const Getuserdata = async () => { //get user data include recipes, email, username, fullname  
+  const Getuserbasicinfo = async () => { //get user data include recipes, email, username, fullname  
     const settings = {
       method: 'GET',
       headers: {
@@ -191,76 +193,97 @@ export default function ProfilePage () {
     }
     setLoading(true);
     try {
-      const response = await fetch(HostUrl('/user?page='+pagenumber+'&size='+sizenumber), settings);
+      const response = await fetch(HostUrl('/user/profile'), settings);
+      //const response = await fetch(HostUrl('/user?page='+pagenumber+'&size='+sizenumber), settings);
       setLoading(false);
-      console.log(HostUrl('/user?page='+pagenumber+'&size='+sizenumber));
       const data = await response.json();
+      setuserId(data.id);
       setusername(data.username);
       setfullname(data.fullName);
       setemail(data.email);
-      //console.log(data);
-      setfollowerlist(data.followerList);
-      setfollowinglist(data.followingList);
-      // assigning data to recipes
-      const oldmyreceipes=[...myreceipes];
-      const newmyreceipes=oldmyreceipes.concat(data.pageRecipeEntity.content);
-      //console.log(newmyreceipes);
-      setmyreceipes(newmyreceipes);
+      console.log("data:");
+      console.log(data);
     } catch (err) {
       setLoading(false);
       console.error(err);
     }
   };  
   
-  const updateuserdata = async () => { //Update user information including email, fullname 
-    //console.log('changefullname: '+fullname);
-    //console.log('changedemail: '+email);    
+  const GetuserRecipes = async () => { //get user data include recipes, email, username, fullname  
     const settings = {
-      method: 'PUT',
+      method: 'GET',
       headers: {
         'Authorization': cookies.token,
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "email": email,
-        "fullName": fullname,
-      }),
+      }
     }
     setLoading(true);
     try {
-      const response = await fetch(HostUrl('/user'), settings);
-      if (!response.ok) {
-        setLoading(false);
-        if (response.status === 403) {
-          setError(true);
-        } else if (response.status === 500) {
-          setError(true);
-          setErrorMessage('Server is unreachable. Please try again later');
+      const response = await fetch(HostUrl('/recipe/user/'+userId+'?page='+pagenumber+'&size='+sizenumber), settings);
+      setLoading(false);
+      const data = await response.json();
+      //console.log("data content:");
+      console.log(data["content"]);
+      setmyreceipes(data["content"]);
+    } catch (err) {
+      setLoading(false);
+      console.error(err);
+    }
+  }; 
+  
+  const updateuserdata = async () => { //Update user information including email, fullname 
+    //console.log('changefullname: '+fullname);
+    //console.log('changedemail: '+email);
+    if (email&&fullname){
+      const settings = {
+        method: 'PUT',
+        headers: {
+          'Authorization': cookies.token,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "email": email,
+          "fullName": fullname,
+        }),
+      }
+      setLoading(true);
+      try {
+        const response = await fetch(HostUrl('/user/profile'), settings);
+        if (!response.ok) {
+          setLoading(false);
+          if (response.status === 403) {
+            setError(true);
+          } else if (response.status === 500) {
+            setError(true);
+            setErrorMessage('Server is unreachable. Please try again later');
+          } else {
+            setError(true);
+            setErrorMessage('Could not connect to the server');
+          }
         } else {
-          setError(true);
-          setErrorMessage('Could not connect to the server');
-        }
-      } else {
-        setLoading(false);
-        if (response.status === 200) {
-          try {
-            const data = await response;
-            //console.log('data:');
-            //console.log(data);          
-          } catch (e) {
-            throw e;
+          setLoading(false);
+          if (response.status === 200) {
+            try {
+              const data = await response.json();
+              console.log("updated data:");
+              console.log(data);
+            } catch (e) {
+              throw e;
+            }
           }
         }
+      // Catch error when there server is not available
+      } catch (err) {
+        console.error(err);
+        setLoading(false);
+        setError(true);
+        setErrorMessage('Could not connect to the server');
       }
-    // Catch error when there server is not available
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-      setError(true);
-      setErrorMessage('Could not connect to the server');
     }
   };  
+   
   
   // for updating user info
   React.useEffect(() => {
@@ -274,142 +297,155 @@ export default function ProfilePage () {
   const handleemialclick = () =>{
     setshoweditemail(true)
   }
-
+  //to get userid, basic info for this user
   React.useEffect(() => {
-    //console.log('cookies.token:'+cookies.token);
-    Getuserdata();
-  }, [pagenumber]);
-
-  return (
-    <>
-    <Header rightLink={<RightLink />}/>
-	  <div className='profileContainer' >
-      <div className='infoContainer'>
-        <div className={classes.root}>
-          <Avatar className={classes.large}>{username.charAt(0)}</Avatar>
-        </div>
-        <div className='nameemail'>
-          {!showeditname && 
-            <h1>{fullname}
-              <IconButton
-                onClick={handleclickname}
-                className='editbutton'>
-                <EditIcon />
-              </IconButton>
-            </h1>
-          }
-          {showeditname && 
-            <Handleeditname
-              fullname={fullname}
-              setfullname={setfullname}
-              setshoweditname={setshoweditname}
-              updateinfo={updateinfo}
-              setupdateinfo={setupdateinfo}
-            />
-            
-          }  
-          <h3>{username}</h3>          
-          {!showeditemail &&
-            <h3>{email} 
-              <IconButton 
-              onClick={handleemialclick}
-              className='editbutton'>
-                <EditIcon />
-              </IconButton>
-            </h3>
-          }
-          {showeditemail &&
-             <Handleeditemail
-              email={email}
-              setemail={setemail}
-              setshoweditemail={setshoweditemail}
-              updateinfo={updateinfo}
-              setupdateinfo={setupdateinfo}
-            />           
-          }
-               
-        </div>
-        <div className='subscibeinfo'>
-          <div className='subscibebox'>
-            <h1 className='subscibenumber'>
-            {Object.keys(myreceipes).length}
-            </h1>
-            <h3>Posts</h3>
+    Getuserbasicinfo();
+  }, []);
+  //to get recipe for this user
+  React.useEffect(() => {
+    if (userId){
+      GetuserRecipes();
+    }
+  }, [userId,pagenumber]);
+  
+  if(myreceipes){
+    return (
+      <>
+      <Header rightLink={<RightLink />}/>
+      <div className='profileContainer' >
+        <div className='infoContainer'>
+          <div className={classes.root}>
+            <Avatar className={classes.large}>{username.charAt(0).toUpperCase()}</Avatar>
           </div>
-          <div className='subscibebox'
-          onClick={showfollowing}>
-            <h1 className='subscibenumber'>
-            {followinglist.length}
-            </h1>
-            <h3>Following</h3>
+          <div className='nameemail'>
+            {!showeditname && 
+              <h1>{fullname}
+                <IconButton
+                  onClick={handleclickname}
+                  className='editbutton'>
+                  <EditIcon />
+                </IconButton>
+              </h1>
+            }
+            {showeditname && 
+              <Handleeditname
+                fullname={fullname}
+                setfullname={setfullname}
+                setshoweditname={setshoweditname}
+                updateinfo={updateinfo}
+                setupdateinfo={setupdateinfo}
+              />
+              
+            }  
+            <h3>{username}</h3>          
+            {!showeditemail &&
+              <h3>{email} 
+                <IconButton 
+                onClick={handleemialclick}
+                className='editbutton'>
+                  <EditIcon />
+                </IconButton>
+              </h3>
+            }
+            {showeditemail &&
+               <Handleeditemail
+                email={email}
+                setemail={setemail}
+                setshoweditemail={setshoweditemail}
+                updateinfo={updateinfo}
+                setupdateinfo={setupdateinfo}
+              />           
+            }
+                 
+          </div>
+          <div className='subscibeinfo'>
+            <div className='subscibebox'>
+              <h1 className='subscibenumber'>
+              {Object.keys(myreceipes).length}
+              </h1>
+              <h3>Posts</h3>
             </div>
-          <div className='subscibebox'
-          onClick={showfollower}>
-            <h1 className='subscibenumber'>
-            {followerlist.length}
-            </h1>
-            <h3>Followers</h3>
-          </div>          
+            <div className='subscibebox'
+            onClick={showfollowing}>
+              <h1 className='subscibenumber'>
+              {followinglist.length}
+              </h1>
+              <h3>Following</h3>
+              </div>
+            <div className='subscibebox'
+            onClick={showfollower}>
+              <h1 className='subscibenumber'>
+              {followerlist.length}
+              </h1>
+              <h3>Followers</h3>
+            </div>          
+          </div>
         </div>
-      </div>
-      <div className='recipeContainer'>
-        {open &&
-          <TransitionsModal
-            open={open}
-            setOpen={setOpen}
-            modaltitle={modaltitle}
-            content={modalcontent}
-            buttonmessage={buttonmessage}
-            listoffollowing={followinglist}//for follower and following comparsion
-          />
-        }
-        {showWarning &&
-          <DeleteWarningDialog
-            message={"Are you sure you want to delete this recipe?"}
-            setWarning={setShowWarning}
-            setWarningFeedback={setWarningFeedback}
-            recipeid={focusrecipeid}
-            open={showWarning}
-          />
-        }
-        <div className='containeroutline'>
-          {Object.keys(myreceipes).map((key,index)=>(
-            <div className='singlerecipe'
-              key={key}
-            >
-              <RecipeReviewCard
-                id={myreceipes[key]['id']}
-                author={username}
-                userId={myreceipes[key]['userId']}
-                postdate={myreceipes[key]['updateTime']} // change it to real value, depends on the structure of myrecipe
-                thumbnail={myreceipes[key]['thumbnail']} // change it to real value, depends on the structure of myrecipe
-                title={myreceipes[key]['name']} //replace this with value read from database
-                description={myreceipes[key]['description']}
-                numberoflikes={150}
-                numberofcomments={80}
-                isprivate={username===cookies.username}
-                setShowWarning={setShowWarning}
-                warningFeedback={warningFeedback}
-                setWarningFeedback={setWarningFeedback}
-                setfocusrecipeid={setfocusrecipeid}
-              /> 
+        <div className='recipeContainer'>
+          {open &&
+            <TransitionsModal
+              open={open}
+              setOpen={setOpen}
+              modaltitle={modaltitle}
+              content={modalcontent}
+              buttonmessage={buttonmessage}
+              listoffollowing={followinglist}//for follower and following comparsion
+            />
+          }
+          {showWarning &&
+            <DeleteWarningDialog
+              message={"Are you sure you want to delete this recipe?"}
+              setWarning={setShowWarning}
+              setWarningFeedback={setWarningFeedback}
+              recipeid={focusrecipeid}
+              open={showWarning}
+            />
+          }
+          <div className='containeroutline'>
+            {Object.keys(myreceipes).map((key,index)=>(
+              <div className='singlerecipe'
+                key={key}
+              >
+                <RecipeReviewCard
+                  id={myreceipes[key]['id']}
+                  author={username}
+                  userId={myreceipes[key]['userId']}
+                  postdate={myreceipes[key]['updateTime']} // change it to real value, depends on the structure of myrecipe
+                  thumbnail={myreceipes[key]['image']} // change it to real value, depends on the structure of myrecipe
+                  title={myreceipes[key]['name']} //replace this with value read from database
+                  description={myreceipes[key]['description']}
+                  numberoflikes={myreceipes[key]['numberOfLikes']}
+                  numberofcomments={myreceipes[key]['numberOfComments']}
+                  isprivate={username===cookies.username}
+                  setShowWarning={setShowWarning}
+                  warningFeedback={warningFeedback}
+                  setWarningFeedback={setWarningFeedback}
+                  setfocusrecipeid={setfocusrecipeid}
+                /> 
+              </div>	
+            ))}
+             <div className='singlerecipe'> 
+              <div className="add-button-recipe">
+                <h3>Create New Recipe</h3>
+                  <div className="add-button">
+                    <IconButton className={classes.iconSize} onClick={handleAddRecipe}>
+                      <AddCircleOutlineOutlinedIcon className={classes.iconSize}/>
+                    </IconButton>
+                  </div>
+              </div>
             </div>	
-          ))}
-           <div className='singlerecipe'> 
-            <div className="add-button-recipe">
-              <h3>Create New Recipe</h3>
-                <div className="add-button">
-                  <IconButton className={classes.iconSize} onClick={handleAddRecipe}>
-                    <AddCircleOutlineOutlinedIcon className={classes.iconSize}/>
-                  </IconButton>
-                </div>
-            </div>
-          </div>	
+          </div>
+          <div ref={loader} />
         </div>
-        <div ref={loader} />
       </div>
-	  </div>
+      </>
+    )
+  } else{
+    return (
+    <>
+      <LoadingScreen loading={true} />
     </>
-  )
+    )
+  }
 }
 

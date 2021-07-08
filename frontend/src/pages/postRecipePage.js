@@ -17,7 +17,7 @@ import { MethodcontainerTotal } from 'components/Method/Methodcontainer';
 import { IngredientcontainerTotal } from 'components/Ingredient/IngredientContainer';
 import WarningDialog from 'components/Dialog/warningDialog';
 import BackButton from 'components/BackButton/backButton';
-import UplaodImage from 'components/UploadImage/uploadImage';
+import UplaodImageFile from 'components/UploadImage/uploadImageFile';
 import LoadingScreen from 'components/Loader/loadingScreen';
 
 // Styles
@@ -37,8 +37,9 @@ export default function PostRecipePage () {
   const [description, setDescription] = useState('');
   const [notes, setNotes] = useState('');
   const [mealType, setMealType] = useState('');
-  const [picture, setPicture]= useState();
-  const [thumbnail, setThumbnail] = useState();
+  const [picture, setPicture]= useState(undefined);
+  const [existingImage, setExistingImage] = useState(null);
+  // const [thumbnail, setThumbnail] = useState();
   const [mymethods, setmymethods] = React.useState({1:{'description':''}});
   const [myingredients, setmyingredients] = React.useState({1:{'name':'','qty':'','measure':''}}); //stores ingredient data, ready for backend
 
@@ -53,7 +54,6 @@ export default function PostRecipePage () {
 
   useEffect(() => {
     const postData = async () => {
-      console.log('Post recipe');
       const ingredients = [];
       Object.keys(myingredients).forEach((key, index) => {
         let obj = {
@@ -70,30 +70,74 @@ export default function PostRecipePage () {
       });
       setLoading(true);
       try {
-        const settings = {
-          method: 'POST',
-          body: JSON.stringify({
-            "image": picture,
-            "thumbnail": thumbnail,
-            "description": description,
-            "ingredients": ingredients,
-            "methods": methods,
-            "name": recipeName,
-            "mealType": mealType,
-            "notes": notes
-          }),
-          headers: {
-            'Authorization': cookies.token,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
+        if (picture !== undefined) {
+          const formData = new FormData();
+          formData.append('image', picture);
+          const imgConfig = {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'Authorization': cookies.token,
+            }
+          }
+          const imgResponse = await fetch(HostUrl('/user/recipe/image'), imgConfig);
+          if (imgResponse.status === 200) {
+            const hashImg = await imgResponse.json();
+            const settings = {
+              method: 'POST',
+              body: JSON.stringify({
+                "image": hashImg.image,
+                // "thumbnail": thumbnail,
+                "description": description,
+                "ingredients": ingredients,
+                "methods": methods,
+                "name": recipeName,
+                "mealType": mealType,
+                "notes": notes
+              }),
+              headers: {
+                'Authorization': cookies.token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+              }
+            }
+            const response = await fetch(HostUrl('/user/recipe'), settings);
+            setLoading(false);
+            if (response.status === 200) {
+              history.goBack();
+            }
+          } else if (imgResponse.status === 500) {
+            setError(true);
+            setErrorMessage('Image file too large!');
+            setLoading(false);
+          } else {
+            throw 'Error: Image upload failed';
+          }
+        } else {
+          const settings = {
+            method: 'POST',
+            body: JSON.stringify({
+              "image": null,
+              "description": description,
+              "ingredients": ingredients,
+              "methods": methods,
+              "name": recipeName,
+              "mealType": mealType,
+              "notes": notes
+            }),
+            headers: {
+              'Authorization': cookies.token,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            }
+          }
+          const response = await fetch(HostUrl('/user/recipe'), settings);
+          setLoading(false);
+          if (response.status === 200) {
+            history.goBack();
           }
         }
-        const response = await fetch(HostUrl('/user/recipe'), settings);
-        console.log(response);
-        setLoading(false);
-        if (response.status === 200) {
-          history.push('/dashboard');
-        }
+        
       } catch (err) {
         setLoading(false);
         setError(true);
@@ -104,7 +148,6 @@ export default function PostRecipePage () {
     };
 
     const validateInputs = () => {
-      console.log(myingredients);
       let retVal = true;
       if (recipeName === '') {
         setError(true);
@@ -181,10 +224,11 @@ export default function PostRecipePage () {
         </div>
         <div className={classes.parentContainer}>
           <div className={classes.leftContainer}>
-            <UplaodImage
+            <UplaodImageFile
               picture={picture}
               setPicture={setPicture}
-              setThumbnail={setThumbnail}
+              existingImage={existingImage}
+              setExistingImage={setExistingImage}
             />
             <TextField
               variant="outlined"

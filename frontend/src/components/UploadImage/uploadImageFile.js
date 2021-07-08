@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import 'styles/components/uploadImage.css';
 import CancelIcon from '@material-ui/icons/Cancel';
@@ -6,51 +6,37 @@ import IconButton from '@material-ui/core/IconButton';
 import { red } from '@material-ui/core/colors';
 
 import UploadIcon from 'assets/img/outbox.png';
+import HostUrl from 'config';
 
-export default function UplaodImage ({ picture, setPicture, setThumbnail }) {
+export default function UplaodImageFile ({ picture, setPicture, existingImage, setExistingImage }) {
+  const [preview, setPreview] = useState(existingImage);
   const handleDelete = () => {
     setPicture(undefined);
-    setThumbnail(undefined);
+    setPreview('');
+    setExistingImage(null);
     document.getElementById("fileform").reset();
-  }
-
-  const resizeImage = (imgEl, wantedWidth) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    // set its dimension to target size
-    const aspect = imgEl.width / imgEl.height;
-    canvas.width = wantedWidth;
-    canvas.height = wantedWidth / aspect;
-
-    // draw source image into the off-screen canvas
-    ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
-    
-    // encode image to data-uri with base64 version of compressed image
-    return canvas.toDataURL();
   }
 
   const handleOnChange = (e) => {
     e.preventDefault();
     const reader = new FileReader();
     const file = e.target.files[0];
-    console.log("changing images");
-    reader.onloadend = () => {
-      // Set the original image to "picture" variable
-      setPicture(reader.result);
-
-      // Set thumbnail by resizing the image
-      const thumbnail = document.createElement('img');
-      thumbnail.addEventListener('load', () => {
-        const resizedDataUri = resizeImage(thumbnail, 300);
-        //console.log(resizedDataUri);
-        setThumbnail(resizedDataUri);
-      });
-      thumbnail.src = reader.result;
+    if (file) {
+      setPicture(file);
     }
-    
+    // console.log("changing images");
+    reader.onloadend = () => {
+      // Set the original image to "preview" variable
+      setPreview(reader.result);
+
+    }
+
     if (file !== undefined) reader.readAsDataURL(file);
   }
+
+  // console.log("Picture", picture);
+  // console.log("Existing", existingImage);
+  // console.log("Preview", preview);
 
   return (
     <div className="file-upload-container">
@@ -73,7 +59,7 @@ export default function UplaodImage ({ picture, setPicture, setThumbnail }) {
           onChange = {handleOnChange}
         />
       </form>
-      {picture !== undefined ?
+      {picture !== undefined || existingImage !== null ?
         <div className="preview-container">
           <div className="upload-picture-container">
             <span className="delete-button">
@@ -81,7 +67,9 @@ export default function UplaodImage ({ picture, setPicture, setThumbnail }) {
                 <CancelIcon style={{ color: red[500] }}/>
               </IconButton>
             </span>
-            <img className="uploadPicture" src={picture} alt="preview" />
+            {picture !== undefined ? <img className="uploadPicture" src={preview} alt="preview" />
+            : <img className="uploadPicture" src={HostUrl('/' + existingImage)} alt="preview" />}
+            
           </div>
         </div>
         : ''}
@@ -90,8 +78,9 @@ export default function UplaodImage ({ picture, setPicture, setThumbnail }) {
   );
 }
 
-UplaodImage.propTypes = {
-  picture: PropTypes.string,
+UplaodImageFile.propTypes = {
+  picture: PropTypes.object,
   setPicture: PropTypes.func,
-  setThumbnail: PropTypes.func,
+  existingImage: PropTypes.string,
+  setExistingImage: PropTypes.func,
 };
