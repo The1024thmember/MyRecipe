@@ -19,6 +19,7 @@ import HostUrl from 'config';
 import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
 import DeleteWarningDialog from 'components/Dialog/deleteWarningDialog';
 import LoadingScreen from 'components/Loader/loadingScreen';
+import SimpleDialog from 'components/Dialog/simpleDialog';
 
 function RightLink () {
   const history = useHistory();
@@ -68,13 +69,22 @@ function Handleeditname({fullname,setfullname,setshoweditname,updateinfo,setupda
   </>
 }
 
-function Handleeditemail({email,setemail,setshoweditemail,updateinfo,setupdateinfo}) {
+function Handleeditemail({email,setemail,setshoweditemail,updateinfo,setupdateinfo,setErrorMessage,setError}) {
+  // Email pattern test
+
+  const pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+
   const [tempemail,settempemail] = React.useState('');
   const handleclick=()=>{
     if (tempemail) {
-      console.log('updating email: '+tempemail);
-      setemail(tempemail);
-      setupdateinfo(updateinfo+1);
+      if(!pattern.test(tempemail)){
+        setErrorMessage('Please enter valid email address');  
+        setError(true);        
+      } else{
+        console.log('updating email: '+tempemail);
+        setemail(tempemail);
+        setupdateinfo(updateinfo+1);
+      }
     } else{
       console.log('tempemail=empty: '+tempemail);
       setemail(email);
@@ -141,6 +151,7 @@ export default function ProfilePage () {
   const [showWarning, setShowWarning] = React.useState(false); //delete warning dialog
   const [warningFeedback, setWarningFeedback] = React.useState('');
   const [focusrecipeid, setfocusrecipeid] = React.useState(''); //recipeid to be deleted
+
   const history = useHistory();
   
   //handle infinite scroll
@@ -170,6 +181,7 @@ export default function ProfilePage () {
   
   
   const showfollowing = () => {
+    //GetNumberofFollowering();
     setOpen(true);
     setmodaltitle('List of Following');
     setmodalcontent(followinglist);
@@ -177,6 +189,7 @@ export default function ProfilePage () {
   }
   const showfollower = () => {
     setOpen(true);
+    GetNumberofFollower();
     setmodaltitle('List of Followers');
     setmodalcontent(followerlist);
     setbuttonmessage("");//since we don't know if the user is following his/her follower, so need to compare each of his follower with following list to determine what should be on the button
@@ -201,8 +214,8 @@ export default function ProfilePage () {
       setusername(data.username);
       setfullname(data.fullName);
       setemail(data.email);
-      console.log("data:");
-      console.log(data);
+      //console.log("data:");
+      //console.log(data);
     } catch (err) {
       setLoading(false);
       console.error(err);
@@ -224,7 +237,7 @@ export default function ProfilePage () {
       setLoading(false);
       const data = await response.json();
       //console.log("data content:");
-      console.log(data["content"]);
+      //console.log(data["content"]);
       setmyreceipes(data["content"]);
     } catch (err) {
       setLoading(false);
@@ -284,6 +297,41 @@ export default function ProfilePage () {
     }
   };  
    
+  const GetNumberofFollower = async () => { //get user data include recipes, email, username, fullname  
+    const settings = {
+      method: 'GET',
+      headers: {
+        'Authorization': cookies.token,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    }
+    try {
+      const response = await fetch(HostUrl('/user/followers'),settings);
+      const data = await response.json();
+      setfollowerlist(data.resultMap);
+    } catch (err) {
+      console.error(err);
+    }
+  }; 
+  
+  const GetNumberofFollowering = async () => { //get user data include recipes, email, username, fullname  
+    const settings = {
+      method: 'GET',
+      headers: {
+        'Authorization': cookies.token,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    }
+    try {
+      const response = await fetch(HostUrl('/user/follows'),settings);
+      const data = await response.json();
+      setfollowinglist(data.resultMap);
+    } catch (err) {
+      console.error(err);
+    }
+  }; 
   
   // for updating user info
   React.useEffect(() => {
@@ -300,7 +348,10 @@ export default function ProfilePage () {
   //to get userid, basic info for this user
   React.useEffect(() => {
     Getuserbasicinfo();
+    GetNumberofFollower();
+    GetNumberofFollowering();
   }, []);
+
   //to get recipe for this user
   React.useEffect(() => {
     if (userId){
@@ -354,6 +405,8 @@ export default function ProfilePage () {
                 setshoweditemail={setshoweditemail}
                 updateinfo={updateinfo}
                 setupdateinfo={setupdateinfo}
+                setError={setError}
+                setErrorMessage={setErrorMessage}
               />           
             }
                  
@@ -381,6 +434,7 @@ export default function ProfilePage () {
             </div>          
           </div>
         </div>
+        {error ? <SimpleDialog message={errorMessage} setError={setError} open={error}/> : ''}
         <div className='recipeContainer'>
           {open &&
             <TransitionsModal
@@ -388,8 +442,10 @@ export default function ProfilePage () {
               setOpen={setOpen}
               modaltitle={modaltitle}
               content={modalcontent}
+              setcontent={setmodalcontent}
               buttonmessage={buttonmessage}
               listoffollowing={followinglist}//for follower and following comparsion
+              setfollowinglist={setfollowinglist}
             />
           }
           {showWarning &&
@@ -412,7 +468,7 @@ export default function ProfilePage () {
                   userId={myreceipes[key]['userId']}
                   postdate={myreceipes[key]['updateTime']} // change it to real value, depends on the structure of myrecipe
                   thumbnail={myreceipes[key]['image']} // change it to real value, depends on the structure of myrecipe
-                  title={myreceipes[key]['name']} //replace this with value read from database
+                  title={myreceipes[key]['fullName']} //replace this with value read from database
                   description={myreceipes[key]['description']}
                   numberoflikes={myreceipes[key]['numberOfLikes']}
                   numberofcomments={myreceipes[key]['numberOfComments']}

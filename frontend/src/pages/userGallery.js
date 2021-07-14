@@ -4,7 +4,7 @@ import Header from 'components/Header/header';
 import 'styles/pages/userGallery.css';
 import  { RecipeReviewCard }  from 'components/RecipeCard/recipeCard.js';
 import Avatar from '@material-ui/core/Avatar';
-import { useHistory } from 'react-router-dom';
+// import { useHistory } from 'react-router-dom';
 import BackButton from 'components/BackButton/backButton';
 import HostUrl from 'config';
 import { useCookies } from 'react-cookie';
@@ -36,7 +36,7 @@ export default function UserGallery() {
   const userId = router.query.userId;
   const [cookies] = useCookies(['token']);
 
-  // Define numebr of page number and page size
+  // Define number of page number and page size
   const [pageNumber, setPageNumber] = useState(0);
   const pageSize = 10;
 
@@ -204,25 +204,6 @@ export default function UserGallery() {
           <div className="title-container">
             <h1>Latest Posts</h1>
           </div>
-          {/* {recipes.map((val, key) => {
-            return (
-              <div className='singlerecipe' key={key}> 
-                <RecipeReviewCard
-                  id={val.id}
-                  author={fullname}
-                  userId={val.userId}
-                  postdate={val.updateTime} // change it to real value, depends on the structure of myrecipe
-                  thumbnail={val.image} // change it to real value, depends on the structure of myrecipe
-                  title={val.name} //replace this with value read from database
-                  description={val.description}
-                  numberoflikes={val.numberOfLikes}
-                  numberofcomments={val.numberOfComments}
-                  isprivate={username === cookies.username}
-                  setfocusrecipeid={setFocusRecipeId}
-                /> 
-              </div>	
-            );
-          })} */}
           <InfiniteScroll
             dataLength={recipes.length}
             next={getRecipes}
@@ -238,7 +219,7 @@ export default function UserGallery() {
               </div>
             }
           >
-            {/* {recipes.map((val, key) => {
+            {recipes.map((val, key) => {
               return (
                 <div className='singlerecipe' key={key}> 
                   <RecipeReviewCard
@@ -257,7 +238,7 @@ export default function UserGallery() {
                   <p>{val.key}</p>
                 </div>
               );
-            })} */}
+            })}
           </InfiniteScroll>
         </div>
       </>}

@@ -1,0 +1,55 @@
+
+.buttonContainer{
+  display: flex;
+  align-items: center;
+  margin: 20px 40px;
+}
+
+.Container{
+  
+}
+
+.logo {
+  margin-left:150px;
+  height: 250px;
+  width: 250px;
+}
+.img {
+  object-fit: contain;
+}
+
+.mealType{
+  width: 100%;
+}
+
+.searchButton{
+  width: 30px;
+  height: 54px;  
+}
+
+.searchMethod{
+  width:705px;
+  position:relative;
+  left:7px;
+}
+
+.searchItemContainer{
+  position:relative;
+  left:-80px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width:700px;
+}
+
+.RecipeContainer{
+  display:flex;
+  width:100%;
+  position:absolute;
+  left:0px;
+  padding-top:20px;
+}
+
+.methodContainer{
+  padding-top:10px;
+}

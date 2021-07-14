@@ -19,6 +19,7 @@ import ProfilePage from 'pages/profilePage';
 import UserGallery from 'pages/userGallery';
 import RecipePage from 'pages/recipePage';
 import UpdateRecipePage from 'pages/updateRecipePage';
+import SearchPage from 'pages/searchPage';
 
 ReactDOM.render(
   <CookiesProvider>
@@ -29,6 +30,7 @@ ReactDOM.render(
             <Route exact path="/updaterecipe/:recipeId" component={UpdateRecipePage} />
             <Route exact path="/recipe/:recipeId" component={RecipePage} />
             <Route exact path="/postrecipe" component={postRecipePage} />
+            <Route path="/searchrecipe" component={SearchPage} />
             <Route path="/profile" component={ProfilePage} />
             <Route path="/user/:userId" component={UserGallery} />
             <PrivateRoute path="/dashboard" component={DashboardPage} />

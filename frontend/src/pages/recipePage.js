@@ -74,7 +74,7 @@ export default function RecipePage () {
 
       setRecipeName(data.name);
       setDescription(data.description);
-      setAuthorName(data.authorFullName);
+      setAuthorName(data.fullName);
       setCreateTime(data.createTime.split(" ")[0]);
       setMealType(data.mealType);
       setIngredients(data.ingredients);

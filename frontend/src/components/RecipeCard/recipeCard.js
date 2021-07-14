@@ -18,6 +18,7 @@ import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOut
 import LikeButton from 'components/LikeButton/likeButton';
 import CommentButton from 'components/CommentButton/commentButton';
 import 'styles/components/recipeCardStyle.css';
+import {Link} from 'react-scroll';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   author: {
     paddingLeft:"90px",
     position:'relative',
-    top:"40px",
+    top:"35px",
     fontWeight:'bold',
     color:"rgb(88,88,88)",
   },
@@ -134,171 +135,7 @@ export function RecipeReviewCard({id,userId,author,thumbnail,title, postdate, de
       setErrorMessage('Could not connect to the server');
     }
   };
-  /*
-  //to check if the recipe is liked or not
-   const checkLike = async () => { //get user data include recipes, email, username, fullname  
-    var url=new URL(HostUrl('/user/like/'+id));
-    //var params = {id:id};
-    //Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
-    const settings = {
-      method: 'GET',
-      headers: {
-        'Authorization': cookies.token,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-    }
-    setLoading(true);
-    try {
-      const response = await fetch(url, settings);
-      if (!response.ok) {
-        setLoading(false);
-        if (response.status === 403) {
-          setError(true);
-        } else if (response.status === 500) {
-          setError(true);
-          setErrorMessage('Server is unreachable. Please try again later');
-        } else {
-          setError(true);
-          setErrorMessage('Could not connect to the server');
-        }
-      } else {
-        setLoading(false);
-        if (response.status === 200) {
-          try {
-            const data = await response.json(); 
-            setliking(data.liking);
-          } catch (e) {
-            throw e;
-          }
-        }
-      }
-    // Catch error when there server is not available
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-      setError(true);
-      setErrorMessage('Could not connect to the server');
-    }
-  }; 
 
-  // to like a recipe
-  const likerecipe = async () => { //get user data include recipes, email, username, fullname  
-    var url=new URL(HostUrl('/user/like/'));
-    //var params = {id:id};
-    //Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
-    const settings = {
-      method: 'PUT',
-      headers: {
-        'Authorization': cookies.token,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-       body: JSON.stringify({
-        "id": id,
-      }),
-    }
-    setLoading(true);
-    try {
-      const response = await fetch(url, settings);
-      if (!response.ok) {
-        setLoading(false);
-        if (response.status === 403) {
-          setError(true);
-        } else if (response.status === 500) {
-          setError(true);
-          setErrorMessage('Server is unreachable. Please try again later');
-        } else {
-          setError(true);
-          setErrorMessage('Could not connect to the server');
-        }
-      } else {
-        setLoading(false);
-        if (response.status === 200) {
-          try {
-            const data = await response;
-            console.log('data:');
-            console.log(data);          
-          } catch (e) {
-            throw e;
-          }
-        }
-      }
-    // Catch error when there server is not available
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-      setError(true);
-      setErrorMessage('Could not connect to the server');
-    }
-  };
-  
-  // to dislike a recipe
-  const dislikerecipe = async () => { //get user data include recipes, email, username, fullname  
-    var url=new URL(HostUrl('/user/dislike/'));
-    //var params = {id:id};
-    //Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
-    const settings = {
-      method: 'PUT',
-      headers: {
-        'Authorization': cookies.token,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-       body: JSON.stringify({
-        "id": id,
-      }),
-    }
-    setLoading(true);
-    try {
-      const response = await fetch(url, settings);
-      if (!response.ok) {
-        setLoading(false);
-        if (response.status === 403) {
-          setError(true);
-        } else if (response.status === 500) {
-          setError(true);
-          setErrorMessage('Server is unreachable. Please try again later');
-        } else {
-          setError(true);
-          setErrorMessage('Could not connect to the server');
-        }
-      } else {
-        setLoading(false);
-        if (response.status === 200) {
-          try {
-            const data = await response;
-            console.log('data:');
-            console.log(data);          
-          } catch (e) {
-            throw e;
-          }
-        }
-      }
-    // Catch error when there server is not available
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-      setError(true);
-      setErrorMessage('Could not connect to the server');
-    }
-  };  
-  
-  React.useEffect(()=>{
-    checkLike();
-  },[]);
-  
-  const handlelike = () => { //submit with backend for like a recipe
-    console.log('liking:');
-    console.log(id);
-    if (liking){
-      dislikerecipe();
-    } else {
-      likerecipe();
-    }      
-  }  
- 
-  */
   //console.log("warningFeedback: "+warningFeedback);
   React.useEffect(()=>{ //depends on the warning feedback to decide delete recipe or not
     if(warningFeedback===id)

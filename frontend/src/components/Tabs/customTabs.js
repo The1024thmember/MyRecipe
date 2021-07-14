@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import { makeStyles } from '@material-ui/core';
 import styles from 'styles/components/tabStyles';
@@ -18,18 +17,28 @@ export default function CustomTabs ({ feed, liked, explore }) {
   const [cookies] = useCookies(['token']);
   const [value, setValue] = useState(0);
   const [focusRecipeId, setFocusRecipeId] = React.useState('');
+  const pageSize = 9;
+
   const [feedRecipes, setFeedRecipes] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
-  const pageSize = 6;
-  const [pageNum, setPageNum] = useState(0);
+  const [feedHasMore, setFeedHasMore] = useState(true);
+  const [feedPageNum, setFeedPageNum] = useState(0);
+
+  const [likedRecipes, setLikedRecipes] = useState([]);
+  const [likedHasMore, setLikedHasMore] = useState(true);
+  const [likedPageNum, setLikedPageNum] = useState(0);
+  
+  const [exploreRecipes, setExploreRecipes] = useState([]);
+  const [exploreHasMore, setExploreHasMore] = useState(true);
+  const [explorePageNum, setExplorePageNum] = useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   useEffect(() => {
-    console.log("fetching");
     fetchFeed();
+    fetchLikedFeed();
+    fetchExploreFeed();
   }, []);
 
   const fetchFeed = async () => {
@@ -41,20 +50,68 @@ export default function CustomTabs ({ feed, liked, explore }) {
       }
     };
     try {
-      console.log("loading");
-      const response = await fetch(HostUrl('/user/feed?page=' + pageNum + '&size=' + pageSize), settings);
+      const response = await fetch(HostUrl('/user/feed?page=' + feedPageNum + '&size=' + pageSize), settings);
       const data = await response.json();
-      console.log("got the data");
       console.log(data);
-      setPageNum(pageNum + 1);
+      setFeedPageNum(feedPageNum + 1);
       if (data.content.length === 0) {
-        console.log('recieved empty data');
-        setHasMore(false);
+        setFeedHasMore(false);
         return;
       } else {
         const oldFeedRecipes = [...feedRecipes];
         const newFeedRecipes = oldFeedRecipes.concat(data.content);
         setFeedRecipes(newFeedRecipes);
+        console.log("Get data"); 
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchLikedFeed = async () => {
+    const settings = {
+      method: 'GET',
+      headers: {
+        Authorization: cookies.token,
+        Accept: 'application/json',
+      }
+    };
+    try {
+      const response = await fetch(HostUrl('/user/likes?page=' + likedPageNum + '&size=' + pageSize), settings);
+      const data = await response.json();
+      setLikedPageNum(likedPageNum + 1);
+      if (data.content.length === 0) {
+        setLikedHasMore(false);
+        return;
+      } else {
+        const oldRecipes = [...feedRecipes];
+        const newRecipes = oldRecipes.concat(data.content);
+        setLikedRecipes(newRecipes);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const fetchExploreFeed = async () => {
+    const settings = {
+      method: 'GET',
+      headers: {
+        Authorization: cookies.token,
+        Accept: 'application/json',
+      }
+    };
+    try {
+      const response = await fetch(HostUrl('/recipes?page=' + explorePageNum + '&size=' + pageSize), settings);
+      const data = await response.json();
+      setExplorePageNum(explorePageNum + 1);
+      if (data.content.length === 0) {
+        setExploreHasMore(false);
+        return;
+      } else {
+        const oldExploreRecipes = [...exploreRecipes];
+        const newExploreRecipes = oldExploreRecipes.concat(data.content);
+        setExploreRecipes(newExploreRecipes);
       }
     } catch (error) {
       console.error(error);
@@ -73,14 +130,14 @@ export default function CustomTabs ({ feed, liked, explore }) {
         centered
       >
         <Tab label="Your Feed" />
-        <Tab label="Liked" />
+        <Tab label="Liked Posts" />
         <Tab label="Explore" />
       </Tabs>
       <TabPanel value={value} index={0}>
         <InfiniteScroll
           dataLength={feedRecipes.length}
           next={fetchFeed}
-          hasMore={hasMore}
+          hasMore={feedHasMore}
           loader={
           <div className={classes.loaderContainer}>
             <PulseLoader color={'darkgray'} loading={true} />
@@ -108,17 +165,86 @@ export default function CustomTabs ({ feed, liked, explore }) {
                   isprivate={false}
                   setfocusrecipeid={setFocusRecipeId}
                 /> 
-                <p>{val.key}</p>
               </div>
             );
           })}
         </InfiniteScroll>
       </TabPanel>
       <TabPanel value={value} index={1}>
-        Liked Page
+        <InfiniteScroll
+          dataLength={feedRecipes.length}
+          next={fetchLikedFeed}
+          hasMore={likedHasMore}
+          loader={
+          <div className={classes.loaderContainer}>
+            <PulseLoader color={'darkgray'} loading={true} />
+          </div>}
+          className={classes.feedContainer}
+          endMessage={
+            <div className={classes.loaderContainer}>
+              <b>Yay! You have seen it all</b>
+            </div>
+          }
+        >
+          {likedRecipes.map((val, key) => {
+            return (
+              <div className={classes.singleRecipeContainer} key={key}> 
+                <RecipeReviewCard
+                  id={val.id}
+                  userId={val.userId}
+                  author={val.fullName}
+                  postdate={val.updateTime} 
+                  thumbnail={val.image}
+                  title={val.name}
+                  description={val.description}
+                  numberoflikes={val.numberOfLikes}
+                  numberofcomments={val.numberOfComments}
+                  isprivate={false}
+                  setfocusrecipeid={setFocusRecipeId}
+                /> 
+                <p>{val.key}</p>
+              </div>
+            );
+          })}
+        </InfiniteScroll>
       </TabPanel>
       <TabPanel value={value} index={2}>
-        Explore
+        <InfiniteScroll
+          dataLength={feedRecipes.length}
+          next={fetchLikedFeed}
+          hasMore={exploreHasMore}
+          loader={
+          <div className={classes.loaderContainer}>
+            <PulseLoader color={'darkgray'} loading={true} />
+          </div>}
+          className={classes.feedContainer}
+          endMessage={
+            <div className={classes.loaderContainer}>
+              <b>Yay! You have seen it all</b>
+            </div>
+          }
+        >
+          {exploreRecipes.map((val, key) => {
+            return (
+              <div className={classes.singleRecipeContainer} key={key}> 
+                <RecipeReviewCard
+                  id={val.id}
+                  userId={val.userId}
+                  author={val.fullName}
+                  postdate={val.updateTime} 
+                  thumbnail={val.image}
+                  title={val.name}
+                  description={val.description}
+                  numberoflikes={val.numberOfLikes}
+                  numberofcomments={val.numberOfComments}
+                  isprivate={false}
+                  setfocusrecipeid={setFocusRecipeId}
+                /> 
+                <p>{val.key}</p>
+              </div>
+            );
+          })}
+        </InfiniteScroll>        
       </TabPanel>
     </div>
   );

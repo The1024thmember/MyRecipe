@@ -13,6 +13,7 @@ const DashboardPageStyles = {
   },
   buttonContainer: {
     display: 'flex',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginLeft: '40px',
   },

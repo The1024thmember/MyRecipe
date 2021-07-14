@@ -82,8 +82,16 @@ const useStylesavatar = makeStyles((theme) => ({
   },
 }));
   
-export default function TransitionsModal({open,setOpen,modaltitle,content,buttonmessage,listoffollowing}) {//content is list of follower or following
+export default function TransitionsModal({open,setOpen,modaltitle,content,setcontent,buttonmessage,listoffollowing,setfollowinglist}) {//content is list of follower or following
   const classes = useStyles();
+  const [followingidlist, setfollowingidlist] = React.useState([]);
+  React.useEffect(()=>{
+    var tempidlist = [];
+    for(var i=0; i< listoffollowing.length; i++){
+      tempidlist.push(listoffollowing[i].userId);
+    }
+    setfollowingidlist(tempidlist);
+  },[listoffollowing])  
   return (
     <div>
       <Modal
@@ -106,18 +114,26 @@ export default function TransitionsModal({open,setOpen,modaltitle,content,button
                 {
                   return (
                     <Determinebuttonfunction 
-                      key={key}
-                      userId={key}
+                      key={key.userId}
+                      userId={key.userId}
+                      thisusername={key.fullName}
+                      followingidlist = {followingidlist}
                       listoffollowing={listoffollowing}
+                      setfollowinglist={setfollowinglist}
+                      setcontent={setcontent}
                     />//return follow or unfollow message corrspondly
                   );
                 } else{
                   return (
                     <Unfollowcomponent
-                      key={key}
-                      userId={key}
+                      key={key.userId}
+                      userId={key.userId}
+                      thisusername={key.fullName}
                       buttonmessage={"UNFOLLOW"}
-                      handleclick={false}                     
+                      handleclick={false} 
+                      listoffollowing={listoffollowing}                      
+                      setfollowinglist={setfollowinglist}   
+                      setcontent={setcontent}
                     />
                   );
                 }
@@ -131,58 +147,40 @@ export default function TransitionsModal({open,setOpen,modaltitle,content,button
 }
 
 
-function Determinebuttonfunction({listoffollowing,userId}) {
+function Determinebuttonfunction({setcontent,listoffollowing,userId,followingidlist,thisusername,setfollowinglist}) {
   const [buttonmessage,setbuttonmessage] = React.useState('');
   const [handleclick,sethandleclick] = React.useState('');
+
   React.useEffect(()=>{
-    if(listoffollowing.includes(userId)){
+    if(followingidlist.includes(userId)){
       setbuttonmessage("UNFOLLOW");
       sethandleclick(false);
     }else{
       setbuttonmessage("FOLLOW");
       sethandleclick(true);
     }
-  },[])
-  
+  },[followingidlist])
   return <>
     <Unfollowcomponent
       userId={userId}
+      thisusername={thisusername}
       buttonmessage={buttonmessage}
-      handleclick={handleclick}      
+      handleclick={handleclick} 
+      listoffollowing={listoffollowing}       
+      setfollowinglist={setfollowinglist} 
+      setcontent={setcontent}      
     />
   </>;    
 }
 
-function Unfollowcomponent({buttonmessage,handleclick,userId}){
+function Unfollowcomponent({setcontent,buttonmessage,handleclick,userId,thisusername,listoffollowing,setfollowinglist}){
   const classesavatar = useStylesavatar();
   const classes = useStyles();
   const [cookies] = useCookies(['token']); 
   const [errorMessage, setErrorMessage] = React.useState('');
   const [error, setError] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [userinfo,setuserinfo] = React.useState('');
   const history = useHistory();
-  const getData = async () => { 
-    const settings = {
-      method: 'GET',
-      headers: {
-        'Authorization': cookies.token,
-        'Accept': 'application/json',
-      }
-    };
-    setLoading(true);
-    try {
-      const response = await fetch(HostUrl('/user/' + userId + '?page=' + 0 + '&size=' + 1), settings);
-      if (response.status === 200) {
-        const data = await response.json();
-        setuserinfo(data.fullName);
-      }
-    } catch (err) {
-      setLoading(false);
-      setError(true);
-      setErrorMessage('Could not connect to the server');
-    }
-  };
 
   const sendunfollow = async () => { //Update user information including email, fullname 
     const settings = {
@@ -214,7 +212,16 @@ function Unfollowcomponent({buttonmessage,handleclick,userId}){
         setLoading(false);
         if (response.status === 200) {
           try {
-            const data = await response;       
+            const data = await response;  
+            var temp = [...listoffollowing];
+            for (var i = 0; i < temp.length;i++){
+              if(temp[i].userId === userId){
+                temp.splice(i, 1);
+                break;
+              }
+            }
+            setfollowinglist(temp);
+            setcontent(temp);
           } catch (e) {
             throw e;
           }
@@ -230,7 +237,6 @@ function Unfollowcomponent({buttonmessage,handleclick,userId}){
   }; 
 
   const sendfollow = async () => { //Update user information including email, fullname 
-    console.log("follow user id: "+userId);
     const settings = {
       method: 'PUT',
       headers: {
@@ -260,7 +266,11 @@ function Unfollowcomponent({buttonmessage,handleclick,userId}){
         setLoading(false);
         if (response.status === 200) {
           try {
-            const data = await response;       
+            const data = await response; 
+            var temp = [...listoffollowing];
+            temp.push({userId:userId,fullName:thisusername,username:'somename'});
+            setfollowinglist(temp);  
+            setcontent(temp);
           } catch (e) {
             throw e;
           }
@@ -273,10 +283,8 @@ function Unfollowcomponent({buttonmessage,handleclick,userId}){
       setError(true);
       setErrorMessage('Could not connect to the server');
     }
-  }; 
-  React.useEffect(() => {
-    getData();
-  }, []);      
+  };
+
   return <>
     <div className={classes.profile}>
       <Avatar className={classesavatar.large}
@@ -284,24 +292,22 @@ function Unfollowcomponent({buttonmessage,handleclick,userId}){
         onClick={()=>{
           history.push('/user/'+userId); 
         }}
-      >{userinfo.charAt(0)}</Avatar>
+      >{thisusername.charAt(0)}</Avatar>
       <div  className={classes.namebox}
         id="usernameHover"
         onClick={()=>{
           history.push('/user/'+userId); 
         }}
-      ><h3 className={classes.name}>{userinfo}</h3></div>
+      ><h3 className={classes.name}>{thisusername}</h3></div>
       <div  className={classes.buttonbox}>
         <Button  className={classes.mybutton} variant="outlined" size="small"
         onClick={()=>{
           if (!handleclick){
             console.log("unfollow "+userId);
             sendunfollow();
-            //window.location.reload();
           } else{
             console.log("follow "+userId);
             sendfollow();
-            //window.location.reload();
           }
         }}>
         {buttonmessage}
