@@ -15,7 +15,10 @@ import TextField from '@material-ui/core/TextField';
 import SendIcon from '@material-ui/icons/Send';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import RecommendationContainer from 'components/Recommendation/RecommandationGallery.js'; //recommendation gallery
+import RecommendationContainer from 'components/Recommendation/RecommandationGallery.js'; 
+//import UseAlan from 'components/VoiceAlan/useAlan.js';
+
+//recommendation gallery
 import LoadingScreen from 'components/Loader/loadingScreen';
 import alanBtn from "@alan-ai/alan-sdk-web";
 
@@ -37,18 +40,8 @@ export default function RecipePage () {
   const history = useHistory();
   const recipeId = router.query.recipeId;
   const [loading, setLoading] = useState('false');
+  const alanBtnInstance = useRef(null);
   
-  //add alan AI voice button
-  useEffect(() => {
-    alanBtn({
-        key: 'e79e130adafddcf118c1959c29dc62f32e956eca572e1d8b807a3e2338fdd0dc/stage',
-        onCommand: (commandData) => {
-            if (commandData.command === 'go:back') {
-                    // Call the client code that will react to the received command
-                }
-            }
-    });
-  }, []);
   
   //set recommendationrecipes
   const [recommendationrecipes, setrecommendationrecipes] = useState({
@@ -244,12 +237,45 @@ export default function RecipePage () {
     getRecommendation();
   }, []);
 
+  console.log("methods:",methods);
+  //add alan AI voice button
+  useEffect(() => {
+    console.log("methods:",methods);
+    if(!alanBtnInstance.current && (ingredients.length>=1) && (Object.entries(methods).length >=1)){
+      console.log("*************************************************");
+      console.log(methods);
+      alanBtnInstance.current = alanBtn({
+          key: 'e79e130adafddcf118c1959c29dc62f32e956eca572e1d8b807a3e2338fdd0dc/stage',
+          onCommand: (commandData) => {
+              if (commandData.command === "Ingredients") {
+                  // Call the client code that will react to the received command
+                  console.log(ingredients);
+                  ingredients.map((val, idx)=> {
+                    const toReadIngredient = val.quantity+" " + val.uom + " of " + val.name;
+                    console.log(toReadIngredient);
+                    alanBtnInstance.current.playText(toReadIngredient);
+                  });
+              }
+              else if(commandData.command === "Methods"){
+
+                Object.entries(methods).map(([key, val]) => {
+                    const toReadMethods = "Step "+key+" "+val;
+                    console.log(toReadMethods);
+                    alanBtnInstance.current.playText(toReadMethods);
+                })             
+              }
+            }
+      });
+    }
+  }, [ingredients,methods]);
+  
   return (
     <>
       {loading
       ? (<LoadingScreen loading={loading} />)
       : <>
       <Header rightLink={<BackButton />}/>
+
       <div id="recipe-parallax"
         style={{
           width: "100%",
