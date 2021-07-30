@@ -8,6 +8,7 @@
 	flex-direction:row;
 	padding-left:5%;
 	padding-right:5%;
+
 }
 
 .avatar {
@@ -56,6 +57,7 @@
 	border:1px solid rgb(220,220,220);
 	border-radius:5px;
 	min-height: 600px;
+  box-sizing:initial;
 }
 
 .postprompt {

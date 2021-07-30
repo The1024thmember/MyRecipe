@@ -57,6 +57,7 @@ export default function SearchPage () {
   const [searchMethod, setSearchMethod] = useState('');
   const [findMatch,setFindMatch] = useState([]);
   const [isloading, setIsLoading] = useState(false);
+  const [newSearch,setNewSearch] = useState(false);
   
   const searchRecipe = async () => {
     const settings = {
@@ -66,11 +67,12 @@ export default function SearchPage () {
         Accept: 'application/json',
       }
     };
-    console.log('searchMealType:'+searchMealType);
+    //console.log('searchMealType:'+searchMealType);
     try {
       const response = await fetch(HostUrl('/recipe/search?ingredient=' + searchIngredient + '&mealType=' + searchMealType + '&method=' + searchMethod + '&name=' + searchName + '&page=' + feedPageNum + '&size=' + pageSize), settings);
       const data = await response.json();
       console.log(data);
+      setIsLoading(false);
       setFeedPageNum(feedPageNum + 1);
       if (data.content.length === 0) {
         setFeedHasMore(false);
@@ -86,13 +88,16 @@ export default function SearchPage () {
       console.error(error);
     }
   };  
-  
-  
+
   const handleChangeName=(e)=>{
     setSearchName(e.target.value);
   };
   const handleMealTypeChange=(e)=>{
     setSearchMealType(e.target.value);
+    if(e.target.value==="-BLANK-")
+      setSearchMealType("");
+    else
+      setSearchMealType(e.target.value);
   };
   const handleChangeIngredient=(e)=>{
     setSearchIngredient(e.target.value);
@@ -107,10 +112,11 @@ export default function SearchPage () {
   const handleSubmitSearchRequest=()=>{
     searchRecipe();
     setIsLoading(true);
+    setNewSearch(true);
   };
   return <>
-      <Header leftLink={<LeftLink />} rightLink={<AvatarProfile username={cookies.username}/>}/>
-      <Container component="main"  maxWidth="sm">  
+      <Header className = "myheader" leftLink={<LeftLink />} rightLink={<AvatarProfile username={cookies.username}/>}/>
+      <Container component="main"  maxWidth="sm" className="Container">  
         <div className='logo'>
           <img className='img' src={logo} alt="logo" />
         </div>
@@ -120,18 +126,19 @@ export default function SearchPage () {
             <Grid item xs={4}> 
               <TextField className="searchName"
                 variant="outlined"
-                label="Name *"
+                label="Name"
                 onChange={handleChangeName}
               />
             </Grid>
             <Grid item xs={3} >
               <FormControl variant="outlined" className='mealType'>
-                <InputLabel id="meal-type-outlined-label">Meal Type *</InputLabel>
+                <InputLabel id="meal-type-outlined-label">Meal Type</InputLabel>
                 <Select
                   labelId="meal-type-label"
                   id="meal-type"
                   onChange={handleMealTypeChange}
                   label="Meal Type"
+                  
                 >
                   <MenuItem value={"Breakfast"}>Breakfast</MenuItem>
                   <MenuItem value={"Lunch"}>Lunch</MenuItem>
@@ -139,13 +146,14 @@ export default function SearchPage () {
                   <MenuItem value={"Dinner"}>Dinner</MenuItem>
                   <MenuItem value={"Dessert"}>Dessert</MenuItem>
                   <MenuItem value={"Beverage"}>Beverage</MenuItem>
+                  <MenuItem value={"-BLANK-"}>-BLANK-</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={4} >
               <TextField className="searchIngredient"
               variant="outlined"
-              label="Ingredient *"
+              label="Ingredient"
               onChange={handleChangeIngredient}
               />
             </Grid>
@@ -165,7 +173,7 @@ export default function SearchPage () {
             <Grid item xs={12}> 
               <TextField className="searchMethod"
                 variant="outlined"
-                label="Method *"
+                label="Method"
                 onChange={handleChangeMethod}
               />
             </Grid>        
@@ -179,6 +187,8 @@ export default function SearchPage () {
           searchRecipe = {searchRecipe}
           feedHasMore = {feedHasMore}
           isloading = {isloading}
+          newSearch = {newSearch}
+          setNewSearch = {setNewSearch}
         />
       
       
@@ -187,9 +197,13 @@ export default function SearchPage () {
   </>
 }
 
-const DisplayRecipes=({searchedRecipe, searchRecipe, feedHasMore, isloading})=>{
+const DisplayRecipes=({searchedRecipe, searchRecipe, feedHasMore, isloading, newSearch, setNewSearch})=>{
   const classes = useStyles();
   const [focusRecipeId, setFocusRecipeId] = React.useState('');
+  const getmorefeeds=()=>{
+    searchRecipe();
+    setNewSearch(false);
+  }
   return <>
   <div className='RecipeContainer'>
     <InfiniteScroll
@@ -227,6 +241,9 @@ const DisplayRecipes=({searchedRecipe, searchRecipe, feedHasMore, isloading})=>{
           </div>
         );
       })}
+      {newSearch && searchedRecipe.length === 0 && !isloading &&
+        <h2 className = "NoMatch">Sorry, we didn't find any recipe match your search.</h2>
+      }
       </InfiniteScroll>        
   </div>
   </>

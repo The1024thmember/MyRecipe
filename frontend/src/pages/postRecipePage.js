@@ -165,6 +165,16 @@ export default function PostRecipePage () {
         setWarningFeedback('');
         retVal = false;
       } else {
+        const qtyPattern = new RegExp(/^[+]?\d+(\.\d+)?$/);
+        Object.keys(mymethods).forEach((key, index) => {
+          if (mymethods[key].description === '') {
+            setError(true);
+            setErrorMessage("Empty fields in methods are not allowed");
+            setWarningFeedback('');
+            retVal = false;
+          }
+        });
+
         Object.keys(myingredients).forEach((key, index) => {
           if (myingredients[key].name === '' || myingredients[key].qty === '' || myingredients[key].measure === '') {
             setError(true);
@@ -172,12 +182,17 @@ export default function PostRecipePage () {
             setWarningFeedback('');
             retVal = false;
           }
-        });
-  
-        Object.keys(mymethods).forEach((key, index) => {
-          if (mymethods[key].description === '') {
+          
+          if (!qtyPattern.test(myingredients[key].qty) && myingredients[key].qty !== '' ) {
             setError(true);
-            setErrorMessage("Empty fields in methods are not allowed");
+            setErrorMessage("Ingredient quantity must be a numerical value");
+            setWarningFeedback('');
+            retVal = false;
+          }
+          
+          if (qtyPattern.test(myingredients[key].name)) {
+            setError(true);
+            setErrorMessage("Ingredient name must be a string");
             setWarningFeedback('');
             retVal = false;
           }

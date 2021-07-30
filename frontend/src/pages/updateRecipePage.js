@@ -233,6 +233,16 @@ export default function UpdateRecipePage () {
         setWarningFeedback('');
         retVal = false;
       } else {
+        const qtyPattern = new RegExp(/^[+]?\d+(\.\d+)?$/);
+        Object.keys(methods).forEach((key, index) => {
+          if (methods[key].description === '') {
+            setError(true);
+            setErrorMessage("Empty fields in methods are not allowed");
+            setWarningFeedback('');
+            retVal = false;
+          }
+        });
+
         Object.keys(ingredients).forEach((key, index) => {
           if (ingredients[key].name === '' || ingredients[key].quantity === '' || ingredients[key].uom === '') {
             setError(true);
@@ -240,12 +250,17 @@ export default function UpdateRecipePage () {
             setWarningFeedback('');
             retVal = false;
           }
-        });
-  
-        Object.keys(methods).forEach((key, index) => {
-          if (methods[key] === '') {
+          
+          if (!qtyPattern.test(ingredients[key].quantity) && ingredients[key].quantity != '') {
             setError(true);
-            setErrorMessage("Empty fields in methods are not allowed");
+            setErrorMessage("Ingredient quantity must be a numerical value");
+            setWarningFeedback('');
+            retVal = false;
+          }
+
+          if (qtyPattern.test(ingredients[key].name)) {
+            setError(true);
+            setErrorMessage("Ingredient name must be a string");
             setWarningFeedback('');
             retVal = false;
           }

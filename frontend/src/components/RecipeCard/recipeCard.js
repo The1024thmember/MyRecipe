@@ -170,6 +170,7 @@ export function RecipeReviewCard({id,userId,author,thumbnail,title, postdate, de
     console.log('Going to full detail view:');
     console.log(id); 
     history.push('/recipe/'+id);  
+     window.location.reload(true);
   }
   
   const jumpToUsergallery=()=>{

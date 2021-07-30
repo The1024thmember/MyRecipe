@@ -52,7 +52,6 @@ export default function CustomTabs ({ feed, liked, explore }) {
     try {
       const response = await fetch(HostUrl('/user/feed?page=' + feedPageNum + '&size=' + pageSize), settings);
       const data = await response.json();
-      console.log(data);
       setFeedPageNum(feedPageNum + 1);
       if (data.content.length === 0) {
         setFeedHasMore(false);
@@ -76,15 +75,19 @@ export default function CustomTabs ({ feed, liked, explore }) {
         Accept: 'application/json',
       }
     };
+    console.log("likedPageNum", likedPageNum);
+    console.log("likedRecipes", likedRecipes);
     try {
       const response = await fetch(HostUrl('/user/likes?page=' + likedPageNum + '&size=' + pageSize), settings);
       const data = await response.json();
       setLikedPageNum(likedPageNum + 1);
+      console.log("Get liked feed data");
+      console.log(data.content);
       if (data.content.length === 0) {
         setLikedHasMore(false);
         return;
       } else {
-        const oldRecipes = [...feedRecipes];
+        const oldRecipes = [...likedRecipes];
         const newRecipes = oldRecipes.concat(data.content);
         setLikedRecipes(newRecipes);
       }
@@ -118,6 +121,46 @@ export default function CustomTabs ({ feed, liked, explore }) {
     }
   };
 
+  const handleFeedMouseDown = () => {
+    // Change the states
+	  setFeedPageNum(0);
+  	setFeedHasMore(true);
+  	setFeedRecipes([]);
+
+  }
+
+  const handleFeedMouseUp = () => {
+    // Re-fetch
+    fetchFeed();
+  }
+  
+  const handleLikedMouseDown = () => {
+    // Change the states	 	
+    setLikedPageNum(0);
+    setLikedHasMore(true);
+    setLikedRecipes([]);
+    
+  }
+  
+  const handleLikedMouseUp = () => {
+    // Re-fetch
+    fetchLikedFeed();
+  }
+  
+  const handleExploreMouseDown = () => {
+    // Change the states
+    setExplorePageNum(0);
+  	setExploreHasMore(true);
+  	setExploreRecipes([]);
+  }
+  
+  const handleExploreMouseUp = () => {
+    // Re-fetch
+    fetchExploreFeed();
+  }
+  
+  
+
   return (
     <div className={classes.tab}>
       <Tabs
@@ -129,9 +172,18 @@ export default function CustomTabs ({ feed, liked, explore }) {
         aria-label="full width tabs example"
         centered
       >
-        <Tab label="Your Feed" />
-        <Tab label="Liked Posts" />
-        <Tab label="Explore" />
+        <Tab 
+          onMouseDown={handleFeedMouseDown}
+          onMouseUp={handleFeedMouseUp}
+          label="My Feed" />
+        <Tab
+          onMouseDown={handleLikedMouseDown}
+          onMouseUp={handleLikedMouseUp}
+          label="My Favourite" />
+        <Tab 
+          onMouseDown={handleExploreMouseDown}
+          onMouseUp={handleExploreMouseUp}
+          label="Explore" />
       </Tabs>
       <TabPanel value={value} index={0}>
         <InfiniteScroll
@@ -164,7 +216,8 @@ export default function CustomTabs ({ feed, liked, explore }) {
                   numberofcomments={val.numberOfComments}
                   isprivate={false}
                   setfocusrecipeid={setFocusRecipeId}
-                /> 
+                />
+                <p>{val.key}</p>
               </div>
             );
           })}
@@ -211,7 +264,7 @@ export default function CustomTabs ({ feed, liked, explore }) {
       <TabPanel value={value} index={2}>
         <InfiniteScroll
           dataLength={feedRecipes.length}
-          next={fetchLikedFeed}
+          next={fetchExploreFeed}
           hasMore={exploreHasMore}
           loader={
           <div className={classes.loaderContainer}>

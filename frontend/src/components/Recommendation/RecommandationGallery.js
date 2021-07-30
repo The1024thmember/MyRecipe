@@ -50,6 +50,7 @@ function MyArrowright({onClick }) {
 export default function RecommendationContainer ({recommendationrecipes}) { 
   const classes = useStyles();
   const [start,setstart] = React.useState(0);
+  const [focusrecipeid, setfocusrecipeid] = React.useState(''); //recipeid to be deleted
   const arrowleftclick=()=>{
     if(0<start&&start<=2){
       setstart(start-1);
@@ -60,44 +61,81 @@ export default function RecommendationContainer ({recommendationrecipes}) {
       setstart(start+1)
     }
   }
-  return (
-		<div className={classes.root}>
-        <legend className={classes.title}><h2>Recommendations</h2></legend>
-        <Grid container>
-          <Grid item xs={1} className={classes.arrow}>
-            <MyArrowleft 
-              onClick={arrowleftclick}
-            /> 
-          </Grid>
-          <Grid item xs={10} >
-            <div className={classes.paper}>
-              {Object.keys(recommendationrecipes).slice(start,start+3).map((key,index)=>{
-                  return (
-                  <div className='singlerecipe'
-                    key={key}
-                  > 
-                    <RecipeReviewCard
-                      id={recommendationrecipes[key]['id']}
-                      author={JSON.stringify(recommendationrecipes[key]['userId'])}
-                      postdate={recommendationrecipes[key]['updateTime']} // change it to real value, depends on the structure of myrecipe
-                      thumbnail={recommendationrecipes[key]['thumbnail']} // change it to real value, depends on the structure of myrecipe
-                      title={recommendationrecipes[key]['name']} //replace this with value read from database
-                      description={recommendationrecipes[key]['description']}
-                      numberoflikes={150}
-                      numberofcomments={38}
-                      isprivate={false}
-                    /> 
-                  </div>	
-                  )
-              })}            
-            </div>
-          </Grid>
-          <Grid item xs={1} className={classes.arrow}>  
-            <MyArrowright 
-              onClick={arrowrightclick}
-            />
-          </Grid>
-        </Grid>
-		</div>
-    )
+  if(recommendationrecipes.length>1){
+    return (
+      <div className={classes.root}>
+          <legend className={classes.title}><h2>Recommendations</h2></legend>
+          {recommendationrecipes.length >3 &&
+            <Grid container>
+              <Grid item xs={1} className={classes.arrow}>
+                <MyArrowleft 
+                  onClick={arrowleftclick}
+                /> 
+              </Grid>
+              <Grid item xs={10} >
+                <div className={classes.paper}>
+                  {Object.keys(recommendationrecipes).slice(start,start+3).map((key,index)=>{
+                      return (
+                      <div className='singlerecipe'
+                        key={key}
+                      > 
+                        <RecipeReviewCard
+                          id={recommendationrecipes[key]['id']}
+                          author={recommendationrecipes[key]['fullName']}
+                          userId={recommendationrecipes[key]['userId']}
+                          postdate={recommendationrecipes[key]['updateTime']} // change it to real value, depends on the structure of myrecipe
+                          thumbnail={recommendationrecipes[key]['image']} // change it to real value, depends on the structure of myrecipe
+                          title={recommendationrecipes[key]['name']} //replace this with value read from database
+                          description={recommendationrecipes[key]['description']}
+                          numberoflikes={150}
+                          numberofcomments={38}
+                          isprivate={false}
+                          setShowWarning={''}
+                          warningFeedback={''}
+                          setWarningFeedback={''}
+                          setfocusrecipeid={setfocusrecipeid}
+                        /> 
+                      </div>	
+                      )
+                  })}            
+                </div>
+              </Grid>
+              <Grid item xs={1} className={classes.arrow}>  
+                <MyArrowright 
+                  onClick={arrowrightclick}
+                />
+              </Grid>
+            </Grid>
+          }
+          {recommendationrecipes.length <4 && Object.keys(recommendationrecipes).slice(start,start+3).map((key,index)=>{
+                return (
+                <div className='singlerecipe'
+                  key={key}
+                > 
+                  <RecipeReviewCard
+                    id={recommendationrecipes[key]['id']}
+                    author={recommendationrecipes[key]['fullName']}
+                    userId={recommendationrecipes[key]['userId']}
+                    postdate={recommendationrecipes[key]['updateTime']} // change it to real value, depends on the structure of myrecipe
+                    thumbnail={recommendationrecipes[key]['image']} // change it to real value, depends on the structure of myrecipe
+                    title={recommendationrecipes[key]['name']} //replace this with value read from database
+                    description={recommendationrecipes[key]['description']}
+                    numberoflikes={recommendationrecipes[key]['numberOfLikes']}
+                    numberofcomments={recommendationrecipes[key]['numberOfComments']}
+                    isprivate={false}
+                    setShowWarning={''}
+                    warningFeedback={''}
+                    setWarningFeedback={''}
+                    setfocusrecipeid={setfocusrecipeid}
+                  /> 
+                </div>	
+                )
+            })         
+          }
+      </div>
+      )
+  }else{
+    return <>
+    </>
+  }
 }

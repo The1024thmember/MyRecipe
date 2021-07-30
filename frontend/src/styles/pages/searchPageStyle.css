@@ -5,8 +5,14 @@
   margin: 20px 40px;
 }
 
+.myheager{
+  position: fixed;
+  z-Index: 999;
+}
 .Container{
-  
+
+  z-index: 100;
+
 }
 
 .logo {
@@ -40,6 +46,7 @@
   align-items: center;
   text-align: center;
   width:700px;
+
 }
 
 .RecipeContainer{
@@ -48,6 +55,9 @@
   position:absolute;
   left:0px;
   padding-top:20px;
+  align-items: center;
+  justify-content: center;
+  box-sizing:initial;
 }
 
 .methodContainer{

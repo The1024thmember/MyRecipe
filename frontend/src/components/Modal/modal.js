@@ -121,6 +121,7 @@ export default function TransitionsModal({open,setOpen,modaltitle,content,setcon
                       listoffollowing={listoffollowing}
                       setfollowinglist={setfollowinglist}
                       setcontent={setcontent}
+                      modaltitle={modaltitle}
                     />//return follow or unfollow message corrspondly
                   );
                 } else{
@@ -134,6 +135,7 @@ export default function TransitionsModal({open,setOpen,modaltitle,content,setcon
                       listoffollowing={listoffollowing}                      
                       setfollowinglist={setfollowinglist}   
                       setcontent={setcontent}
+                      modaltitle={modaltitle}
                     />
                   );
                 }
@@ -147,7 +149,7 @@ export default function TransitionsModal({open,setOpen,modaltitle,content,setcon
 }
 
 
-function Determinebuttonfunction({setcontent,listoffollowing,userId,followingidlist,thisusername,setfollowinglist}) {
+function Determinebuttonfunction({setcontent,listoffollowing,userId,followingidlist,thisusername,setfollowinglist,modaltitle}) {
   const [buttonmessage,setbuttonmessage] = React.useState('');
   const [handleclick,sethandleclick] = React.useState('');
 
@@ -168,12 +170,13 @@ function Determinebuttonfunction({setcontent,listoffollowing,userId,followingidl
       handleclick={handleclick} 
       listoffollowing={listoffollowing}       
       setfollowinglist={setfollowinglist} 
-      setcontent={setcontent}      
+      setcontent={setcontent} 
+      modaltitle={modaltitle}
     />
   </>;    
 }
 
-function Unfollowcomponent({setcontent,buttonmessage,handleclick,userId,thisusername,listoffollowing,setfollowinglist}){
+function Unfollowcomponent({setcontent,buttonmessage,handleclick,userId,thisusername,listoffollowing,setfollowinglist,modaltitle}){
   const classesavatar = useStylesavatar();
   const classes = useStyles();
   const [cookies] = useCookies(['token']); 
@@ -221,7 +224,9 @@ function Unfollowcomponent({setcontent,buttonmessage,handleclick,userId,thisuser
               }
             }
             setfollowinglist(temp);
-            setcontent(temp);
+            if(modaltitle === 'List of Following'){
+              setcontent(temp);
+            }
           } catch (e) {
             throw e;
           }
@@ -270,7 +275,8 @@ function Unfollowcomponent({setcontent,buttonmessage,handleclick,userId,thisuser
             var temp = [...listoffollowing];
             temp.push({userId:userId,fullName:thisusername,username:'somename'});
             setfollowinglist(temp);  
-            setcontent(temp);
+            //setcontent(temp);
+            
           } catch (e) {
             throw e;
           }

@@ -187,6 +187,7 @@ export default function ProfilePage () {
     setmodalcontent(followinglist);
     setbuttonmessage("unfollow");
   }
+  
   const showfollower = () => {
     setOpen(true);
     GetNumberofFollower();
@@ -464,11 +465,11 @@ export default function ProfilePage () {
               >
                 <RecipeReviewCard
                   id={myreceipes[key]['id']}
-                  author={username}
+                  author={myreceipes[key]['fullName']}
                   userId={myreceipes[key]['userId']}
                   postdate={myreceipes[key]['updateTime']} // change it to real value, depends on the structure of myrecipe
                   thumbnail={myreceipes[key]['image']} // change it to real value, depends on the structure of myrecipe
-                  title={myreceipes[key]['fullName']} //replace this with value read from database
+                  title={myreceipes[key]['name']} //replace this with value read from database
                   description={myreceipes[key]['description']}
                   numberoflikes={myreceipes[key]['numberOfLikes']}
                   numberofcomments={myreceipes[key]['numberOfComments']}

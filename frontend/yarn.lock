@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@alan-ai/alan-sdk-web@^1.8.27":
+  version "1.8.27"
+  resolved "https://registry.yarnpkg.com/@alan-ai/alan-sdk-web/-/alan-sdk-web-1.8.27.tgz#1e6b16e125015f6e9ed3b77a950f976150825953"
+  integrity sha512-eF2UPjGgyj3BjnDBDvRCI2oly97N+n0sikJYcf7rCKmSZenML2c8eoWMX9+4fhbOS0bP+HoKVXXNRxXY5WH1bg==
+
 "@babel/code-frame@7.10.4":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.10.4.tgz#168da1a36e90da68ae8d49c0f1b48c7c6249213a"
